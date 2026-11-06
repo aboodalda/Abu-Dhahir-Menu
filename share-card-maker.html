@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>صانع بطاقة المشاركة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:#faf5ea;padding:18px;text-align:center}
+h1{font-size:20px;color:#f3d58a;margin-bottom:6px}
+p{color:#a79f8e;font-size:13.5px;line-height:1.8;margin-bottom:14px}
+canvas{width:100%;max-width:640px;border-radius:14px;border:1px solid #3a3020;display:block;margin:0 auto 14px;background:#000}
+button,label.b{display:inline-block;padding:14px 22px;border-radius:14px;border:0;background:linear-gradient(135deg,#d4a24c,#f3d58a);color:#1a1204;font-family:inherit;font-weight:900;font-size:16px;cursor:pointer;margin:4px}
+label.b{background:#1d1d1d;color:#faf5ea}
+input{display:none}
+.ok{color:#2fbf71;font-weight:800;margin-top:10px;min-height:22px}
+</style>
+</head>
+<body>
+<h1>🖼️ بطاقة مشاركة الرابط</h1>
+<p>تظهر عند مشاركة رابط المنيو في واتساب وفيسبوك وانستغرام.<br>اضغط «تنزيل» ثم ارفع الملف <b>og-image.jpg</b> بجانب باقي الملفات.</p>
+<canvas id="c" width="1200" height="630"></canvas>
+<button id="dl">⬇️ تنزيل og-image.jpg</button>
+<label class="b">📁 اختيار الشعار يدوياً<input type="file" id="f" accept="image/*"></label>
+<div class="ok" id="msg"></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),msg=document.getElementById('msg');
+let logo=null;
+function draw(){
+  const W=1200,H=630;
+  const bg=x.createRadialGradient(300,315,40,600,315,800);bg.addColorStop(0,'#2e2411');bg.addColorStop(.55,'#120e07');bg.addColorStop(1,'#050505');
+  x.fillStyle=bg;x.fillRect(0,0,W,H);
+  // إطار ذهبي
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#d4a24c');g.addColorStop(.5,'#f3d58a');g.addColorStop(1,'#d4a24c');
+  x.strokeStyle=g;x.lineWidth=4;x.strokeRect(22,22,W-44,H-44);
+  x.lineWidth=1.5;x.globalAlpha=.5;x.strokeRect(34,34,W-68,H-68);x.globalAlpha=1;
+  // الشعار
+  const cx=290,cy=315,r=190;
+  x.save();x.shadowColor='rgba(212,162,76,.6)';x.shadowBlur=60;x.beginPath();x.arc(cx,cy,r+8,0,7);x.fillStyle='#000';x.fill();x.restore();
+  if(logo){x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.clip();const s=Math.min(logo.width,logo.height);x.drawImage(logo,(logo.width-s)/2,(logo.height-s)/2,s,s,cx-r,cy-r,r*2,r*2);x.restore()}
+  x.beginPath();x.arc(cx,cy,r+8,0,7);x.strokeStyle=g;x.lineWidth=6;x.stroke();
+  // النصوص
+  x.direction='rtl';x.textAlign='right';x.textBaseline='alphabetic';
+  const R=1100;
+  x.fillStyle='#faf5ea';x.font='800 58px Tajawal';x.fillText('مطعم وكفي',R,205);
+  const tg=x.createLinearGradient(520,0,1100,0);tg.addColorStop(0,'#d4a24c');tg.addColorStop(.5,'#f3d58a');tg.addColorStop(1,'#d4a24c');
+  x.fillStyle=tg;x.font='900 128px Tajawal';x.fillText('أبو ظهير',R,330);
+  x.fillStyle='#a79f8e';x.font='500 36px Tajawal';x.fillText('للمأكولات الشعبية والمشاوي',R,395);
+  x.fillStyle='#f3d58a';x.font='800 34px Tajawal';x.fillText('🧆 فلافل   🌯 شاورما   🍗 مندي   🔥 مشاوي',R,465);
+  // زر واتساب
+  const bw=520,bh=76,br=38,bx=R-bw,by=500;
+  x.beginPath();x.roundRect(bx,by,bw,bh,br);const wg=x.createLinearGradient(bx,0,bx+bw,0);wg.addColorStop(0,'#1fa855');wg.addColorStop(1,'#2fe07b');x.fillStyle=wg;x.fill();
+  x.fillStyle='#04200f';x.textAlign='center';x.font='900 34px Tajawal';x.fillText('اطلب الآن عبر واتساب 📲',bx+bw/2,by+49);
+}
+function start(){document.fonts.load('900 128px Tajawal').then(()=>document.fonts.load('500 36px Tajawal')).then(()=>document.fonts.ready).then(draw)}
+const img=new Image();img.onload=()=>{logo=img;msg.textContent='✅ تم تحميل الشعار';start()};img.onerror=()=>{msg.textContent='⚠️ لم أجد logo.png، اختر الشعار يدوياً من الزر';start()};img.src='logo.png';
+document.getElementById('f').onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{logo=i;msg.textContent='✅ تم تحميل الشعار';start()};i.src=u};
+document.getElementById('dl').onclick=()=>{
+  const LIMIT=250*1024;
+  const tryQ=q=>{try{c.toBlob(b=>{
+    if(b.size>LIMIT&&q>.4)return tryQ(q-.1);
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='og-image.jpg';a.click();
+    msg.textContent='✅ تم التنزيل ('+Math.round(b.size/1024)+'KB): ارفع og-image.jpg على GitHub'},'image/jpeg',q)}
+  catch(e){msg.textContent='❌ افتح الصفحة من رابط الموقع المنشور أو اختر الشعار يدوياً'}};
+  tryQ(.9);
+};
+</script>
+</body>
+</html>
