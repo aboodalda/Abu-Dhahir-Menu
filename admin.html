@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة تحكم المنيو</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="config.js"></script>
+<style>
+:root{--bg:#0a0a0a;--card:#151515;--gold:#d4a24c;--gold2:#f3d58a;--cream:#faf5ea;--mut:#a79f8e;--red:#e5484d;--ok:#2fbf71}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit}
+input,textarea,select{font-family:inherit}
+.hide{display:none!important}
+#login{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at top,#2a2012,transparent 60%)}
+.box{width:100%;max-width:380px;background:var(--card);border:1px solid #2c2616;border-radius:24px;padding:28px;text-align:center;animation:up .6s}
+@keyframes up{from{opacity:0;transform:translateY(20px)}}
+.box h1{font-size:24px;font-weight:900;color:var(--gold2);margin-bottom:6px}
+.box p{color:var(--mut);font-size:13px;margin-bottom:18px;line-height:1.7}
+.fld{display:block;margin-bottom:12px;text-align:right}
+.fld span{display:block;font-size:13px;color:var(--mut);margin-bottom:5px;font-weight:700}
+.fld input,.fld textarea,.fld select{width:100%;padding:12px 13px;border-radius:12px;border:1px solid #2c2616;background:#0f0f0f;color:var(--cream);font-size:15px;outline:0}
+.fld input:focus,.fld textarea:focus,.fld select:focus{border-color:var(--gold)}
+.btn{padding:12px 18px;border-radius:12px;font-weight:800;font-size:15px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1204;transition:.2s}
+.btn:active{transform:scale(.96)}
+.btn.full{width:100%}
+.btn.dark{background:#212121;color:var(--cream)}
+.btn.red{background:#3a1416;color:#ff9a9d}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.err{color:#ff9a9d;font-size:13px;margin-top:10px;min-height:18px}
+.demo{background:#2a2108;border:1px solid var(--gold);color:var(--gold2);padding:10px 14px;font-size:13px;text-align:center;line-height:1.6}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid #221c10;position:sticky;top:0;background:rgba(10,10,10,.95);backdrop-filter:blur(10px);z-index:20}
+header h1{font-size:18px;font-weight:900;color:var(--gold2)}
+header div{display:flex;gap:8px}
+.tabs{display:flex;gap:8px;padding:12px 16px;overflow-x:auto}
+.tabs button{flex:none;padding:10px 18px;border-radius:99px;background:var(--card);border:1px solid #2c2616;font-weight:800;font-size:14px}
+.tabs button.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1204;border-color:transparent}
+.wrap{max-width:820px;margin:auto;padding:4px 16px 80px}
+.bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.bar select{flex:1;min-width:140px;padding:11px;border-radius:12px;border:1px solid #2c2616;background:var(--card);color:var(--cream);font-size:14px}
+.it{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid #241e11;border-radius:16px;padding:10px;margin-bottom:10px;animation:up .4s both}
+.it.off{opacity:.55}
+.th{flex:none;width:56px;height:56px;border-radius:12px;background:#201a0e;display:grid;place-items:center;font-size:28px;overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover}
+.it .t{flex:1;min-width:0}
+.it .t b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .t small{color:var(--mut);font-size:12px}
+.it .t i{font-style:normal;color:var(--gold2);font-weight:800}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.acts button{width:36px;height:36px;border-radius:10px;background:#212121;font-size:15px}
+.acts .dl{background:#3a1416}
+.sw{position:relative;width:44px;height:26px;background:#333;border-radius:99px;transition:.25s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s}
+.sw.on{background:var(--ok)}
+.sw.on::after{right:21px}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.mo.on{display:flex}
+.md{width:100%;max-width:560px;max-height:94vh;overflow:auto;background:#101010;border:1px solid #2c2616;border-radius:24px 24px 0 0;padding:20px;animation:sl .35s}
+@keyframes sl{from{transform:translateY(60px);opacity:0}}
+.md h3{font-size:19px;color:var(--gold2);margin-bottom:14px;font-weight:900}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prev{width:100%;height:150px;border-radius:14px;background:#201a0e;display:grid;place-items:center;font-size:60px;overflow:hidden;margin-bottom:10px}
+.prev img{width:100%;height:100%;object-fit:cover}
+.chk{display:flex;align-items:center;gap:10px;margin:6px 0 14px;font-weight:700}
+.chk input{width:20px;height:20px;accent-color:var(--gold)}
+.sec{background:var(--card);border:1px solid #241e11;border-radius:18px;padding:16px;margin-bottom:14px}
+.sec h4{color:var(--gold2);margin-bottom:12px;font-size:16px}
+#toast{position:fixed;z-index:500;top:16px;left:50%;transform:translate(-50%,-90px);background:#1b1b1b;border:1px solid var(--gold);padding:10px 20px;border-radius:99px;font-weight:700;transition:.35s}
+#toast.on{transform:translate(-50%,0)}
+.help{color:var(--mut);font-size:12.5px;line-height:1.7;margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- تسجيل الدخول -->
+<div id="login">
+  <div class="box">
+    <h1>🔐 لوحة التحكم</h1>
+    <p id="loginHelp">أدخل رمز الدخول</p>
+    <label class="fld hide" id="emRow"><span>البريد الإلكتروني</span><input id="em" type="email" autocomplete="username"></label>
+    <label class="fld"><span id="pwLbl">كلمة المرور</span><input id="pw" type="password" autocomplete="current-password"></label>
+    <button class="btn full" id="loginBtn">دخول</button>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<!-- التطبيق -->
+<div id="app" class="hide">
+  <div class="demo hide" id="demo">⚠️ الوضع التجريبي: التغييرات تُحفظ على هذا المتصفح فقط ولن تظهر للزبائن. اربط Firebase في config.js لتظهر التعديلات للجميع.</div>
+  <header><h1>⚙️ إدارة المنيو</h1><div><a href="index.html" target="_blank"><button class="btn sm dark">👁 المنيو</button></a><button class="btn sm red" id="logout">خروج</button></div></header>
+  <div class="tabs" id="tabs">
+    <button data-t="items" class="on">🍽️ الأصناف</button>
+    <button data-t="cats">📂 الأقسام</button>
+    <button data-t="set">⚙️ الإعدادات</button>
+    <button data-t="bak">💾 النسخ الاحتياطي</button>
+  </div>
+  <div class="wrap">
+    <section id="p_items">
+      <div class="bar"><select id="fCat"></select><button class="btn" id="addItem">＋ صنف جديد</button></div>
+      <div id="itemList"></div>
+    </section>
+    <section id="p_cats" class="hide">
+      <div class="bar"><button class="btn" id="addCat">＋ قسم جديد</button></div>
+      <div id="catList"></div>
+    </section>
+    <section id="p_set" class="hide">
+      <div class="sec"><h4>معلومات المطعم</h4>
+        <label class="fld"><span>اسم المطعم</span><input id="sName"></label>
+        <label class="fld"><span>الوصف تحت الاسم</span><input id="sTag"></label>
+        <label class="fld"><span>رابط صفحة فيسبوك (يظهر زر «تابعنا على فيسبوك»، اتركه فارغاً لإخفائه)</span><input id="sFb" placeholder="https://www.facebook.com/..." dir="ltr"></label>
+        <label class="fld"><span>رابط/مسار الشعار</span><input id="sLogo" placeholder="logo.png" dir="ltr"></label>
+        <label class="fld"><span>رسالة الشكر أسفل رسالة الواتساب (لكل الفروع)</span><textarea id="sThanks" rows="2"></textarea></label>
+      </div>
+      <div id="branchBox"></div>
+      <button class="btn full" id="saveSet">💾 حفظ الإعدادات</button>
+    </section>
+    <section id="p_bak" class="hide">
+      <div class="sec"><h4>تصدير / استيراد</h4>
+        <button class="btn full" id="exp">⬇️ تنزيل نسخة احتياطية (JSON)</button>
+        <div style="height:10px"></div>
+        <button class="btn dark full" id="impBtn">⬆️ استيراد نسخة احتياطية</button>
+        <input type="file" id="impFile" accept=".json" class="hide">
+        <p class="help">الاستيراد يستبدل كل بيانات المنيو الحالية.</p>
+      </div>
+      <div class="sec"><h4>إعادة الضبط</h4>
+        <button class="btn red full" id="reset">↺ استرجاع المنيو الافتراضي</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- نافذة تعديل صنف -->
+<div class="mo" id="mItem"><div class="md">
+  <h3 id="mTitle">صنف</h3>
+  <div class="prev" id="prev">🍽️</div>
+  <label class="fld"><span>اسم الصنف</span><input id="eName"></label>
+  <div class="two">
+    <label class="fld"><span>القسم</span><select id="eCat"></select></label>
+    <label class="fld"><span>السعر (₪)</span><input id="ePrice" type="number" min="0" step="0.5" inputmode="decimal"></label>
+  </div>
+  <label class="fld"><span>الوصف والمعلومات التفصيلية</span><textarea id="eDesc" rows="3"></textarea></label>
+  <div class="two">
+    <label class="fld"><span>إيموجي بديل للصورة</span><input id="eEmoji" placeholder="🍽️"></label>
+    <label class="fld"><span>شارة</span><select id="eBadge"><option value="">بدون</option><option>جديد</option><option>الأكثر طلباً</option><option>عرض</option><option>حار 🌶️</option></select></label>
+  </div>
+  <label class="fld"><span>رفع صورة من الجهاز</span><input type="file" id="eFile" accept="image/*"></label>
+  <label class="fld"><span>أو رابط صورة</span><input id="eImg" dir="ltr" placeholder="https://..."></label>
+  <button class="btn dark sm" id="eClearImg" style="margin-bottom:12px">إزالة الصورة</button>
+  <label class="chk"><input type="checkbox" id="eAvail"> متوفر للطلب</label>
+  <div class="two"><button class="btn" id="eSave">💾 حفظ</button><button class="btn dark" data-x>إلغاء</button></div>
+</div></div>
+
+<!-- نافذة تعديل قسم -->
+<div class="mo" id="mCat"><div class="md">
+  <h3>قسم</h3>
+  <label class="fld"><span>اسم القسم</span><input id="cName"></label>
+  <label class="fld"><span>الإيموجي</span><input id="cIcon" placeholder="🍽️"></label>
+  <div class="two"><button class="btn" id="cSave">💾 حفظ</button><button class="btn dark" data-x>إلغاء</button></div>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+let D=null,editId=null,editCat=null,tmpImg='';
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2000)}
+async function commit(msg='تم الحفظ ✅'){try{await MenuStore.save(D);toast(msg)}catch(e){console.error(e);toast('❌ فشل الحفظ: '+(e.code||e.message))}}
+
+/* الدخول */
+const SS='abz_admin_ok';
+function enter(){$('#login').classList.add('hide');$('#app').classList.remove('hide');$('#demo').classList.toggle('hide',MenuStore.useFB);MenuStore.load().then(d=>{D=d;renderAll()})}
+if(MenuStore.useFB){
+  $('#emRow').classList.remove('hide');$('#loginHelp').textContent='سجّل الدخول بحساب الإدارة (Firebase)';
+  MenuStore.auth.onAuthStateChanged(u=>{if(u)enter()});
+  $('#loginBtn').onclick=()=>MenuStore.auth.signInWithEmailAndPassword($('#em').value.trim(),$('#pw').value).catch(()=>{$('#err').textContent='بيانات الدخول غير صحيحة'});
+  $('#logout').onclick=()=>MenuStore.auth.signOut().then(()=>location.reload());
+}else{
+  $('#pwLbl').textContent='رمز الدخول';
+  if(sessionStorage.getItem(SS))enter();
+  $('#loginBtn').onclick=()=>{if($('#pw').value===LOCAL_PIN){sessionStorage.setItem(SS,'1');enter()}else $('#err').textContent='الرمز غير صحيح'};
+  $('#logout').onclick=()=>{sessionStorage.removeItem(SS);location.reload()};
+}
+$('#pw').onkeydown=e=>{if(e.key==='Enter')$('#loginBtn').click()};
+
+/* التبويبات */
+$('#tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));['items','cats','set','bak'].forEach(t=>$('#p_'+t).classList.toggle('hide',t!==b.dataset.t))};
+$$('[data-x]').forEach(b=>b.onclick=()=>$$('.mo').forEach(m=>m.classList.remove('on')));
+
+function renderAll(){renderCatSel();renderItems();renderCats();fillSettings()}
+function renderCatSel(){
+  const cur=$('#fCat').value||'all';
+  $('#fCat').innerHTML='<option value="all">كل الأقسام</option>'+D.categories.map(c=>`<option value="${esc(c.id)}">${esc(c.icon)} ${esc(c.name)}</option>`).join('');
+  $('#fCat').value=D.categories.some(c=>c.id===cur)?cur:'all';
+  $('#eCat').innerHTML=D.categories.map(c=>`<option value="${esc(c.id)}">${esc(c.icon)} ${esc(c.name)}</option>`).join('');
+}
+$('#fCat').onchange=renderItems;
+
+/* الأصناف */
+function renderItems(){
+  const f=$('#fCat').value;
+  const list=D.items.filter(i=>f==='all'||i.cat===f);
+  $('#itemList').innerHTML=list.length?list.map((i,k)=>{const c=D.categories.find(c=>c.id===i.cat);return `<div class="it ${i.available?'':'off'}" style="animation-delay:${k*30}ms">
+    <div class="th">${i.img?`<img src="${esc(i.img)}">`:esc(i.emoji||'🍽️')}</div>
+    <div class="t"><b>${esc(i.name)}</b><small>${esc(c?c.name:'بدون قسم')}</small> • <i>${i.price} ₪</i></div>
+    <div class="sw ${i.available?'on':''}" data-av="${esc(i.id)}" title="متوفر"></div>
+    <div class="acts"><button data-up="${esc(i.id)}">↑</button><button data-dn="${esc(i.id)}">↓</button><button data-ed="${esc(i.id)}">✏️</button><button class="dl" data-rm="${esc(i.id)}">🗑</button></div></div>`}).join(''):'<p class="help">لا توجد أصناف.</p>';
+}
+$('#itemList').onclick=e=>{
+  const g=a=>e.target.closest(`[data-${a}]`)?.dataset[a];
+  let id;
+  if(id=g('av')){const i=D.items.find(x=>x.id===id);i.available=!i.available;renderItems();commit()}
+  else if(id=g('ed'))openItem(id);
+  else if(id=g('rm')){const i=D.items.find(x=>x.id===id);if(confirm(`حذف "${i.name}" نهائياً؟`)){D.items=D.items.filter(x=>x.id!==id);renderItems();commit('تم الحذف 🗑')}}
+  else if(id=g('up'))move(id,-1);else if(id=g('dn'))move(id,1);
+};
+function move(id,dir){const a=D.items,i=a.findIndex(x=>x.id===id);let j=i+dir;while(j>=0&&j<a.length&&a[j].cat!==a[i].cat)j+=dir;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];renderItems();commit('تم الترتيب')}
+$('#addItem').onclick=()=>openItem(null);
+
+function openItem(id){
+  if(!D.categories.length)return toast('أضف قسماً أولاً');
+  editId=id;const i=id?D.items.find(x=>x.id===id):{name:'',cat:$('#fCat').value!=='all'?$('#fCat').value:D.categories[0].id,price:'',desc:'',emoji:'🍽️',img:'',available:true,badge:''};
+  $('#mTitle').textContent=id?'تعديل صنف':'إضافة صنف جديد';
+  $('#eName').value=i.name;$('#eCat').value=i.cat;$('#ePrice').value=i.price;$('#eDesc').value=i.desc;$('#eEmoji').value=i.emoji||'';$('#eBadge').value=i.badge||'';$('#eImg').value=i.img&&!i.img.startsWith('data:')?i.img:'';$('#eAvail').checked=i.available!==false;$('#eFile').value='';
+  tmpImg=i.img||'';updPrev();$('#mItem').classList.add('on');
+}
+function updPrev(){$('#prev').innerHTML=tmpImg?`<img src="${esc(tmpImg)}">`:esc($('#eEmoji').value||'🍽️')}
+$('#eEmoji').oninput=updPrev;
+$('#eImg').oninput=e=>{tmpImg=e.target.value.trim();updPrev()};
+$('#eClearImg').onclick=()=>{tmpImg='';$('#eImg').value='';$('#eFile').value='';updPrev()};
+$('#eFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const im=new Image();im.onload=()=>{const k=Math.min(1,700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);tmpImg=c.toDataURL('image/jpeg',.78);$('#eImg').value='';updPrev()};im.src=ev.target.result};r.readAsDataURL(f)};
+$('#eSave').onclick=()=>{
+  const name=$('#eName').value.trim(),price=parseFloat($('#ePrice').value);
+  if(!name)return toast('أدخل اسم الصنف');if(isNaN(price)||price<0)return toast('أدخل سعراً صحيحاً');
+  const o={id:editId||uid('i'),cat:$('#eCat').value,name,desc:$('#eDesc').value.trim(),price,img:tmpImg,emoji:$('#eEmoji').value.trim()||'🍽️',available:$('#eAvail').checked,badge:$('#eBadge').value};
+  if(editId){const k=D.items.findIndex(x=>x.id===editId);D.items[k]=o}else D.items.push(o);
+  $('#mItem').classList.remove('on');renderItems();commit();
+};
+
+/* الأقسام */
+function renderCats(){
+  $('#catList').innerHTML=D.categories.map((c,k)=>`<div class="it"><div class="th">${esc(c.icon)}</div><div class="t"><b>${esc(c.name)}</b><small>${D.items.filter(i=>i.cat===c.id).length} صنف</small></div>
+  <div class="acts"><button data-cu="${k}">↑</button><button data-cd="${k}">↓</button><button data-ce="${k}">✏️</button><button class="dl" data-cr="${k}">🗑</button></div></div>`).join('')||'<p class="help">لا توجد أقسام.</p>';
+}
+$('#catList').onclick=e=>{
+  const g=a=>{const el=e.target.closest(`[data-${a}]`);return el?+el.dataset[a]:null};
+  let k;
+  if((k=g('cu'))!==null&&k>0){[D.categories[k],D.categories[k-1]]=[D.categories[k-1],D.categories[k]];afterCat()}
+  else if((k=g('cd'))!==null&&k<D.categories.length-1){[D.categories[k],D.categories[k+1]]=[D.categories[k+1],D.categories[k]];afterCat()}
+  else if((k=g('ce'))!==null)openCat(k);
+  else if((k=g('cr'))!==null){const c=D.categories[k],n=D.items.filter(i=>i.cat===c.id).length;if(confirm(`حذف القسم "${c.name}"${n?` مع ${n} صنف بداخله`:''}؟`)){D.items=D.items.filter(i=>i.cat!==c.id);D.categories.splice(k,1);afterCat()}}
+};
+function afterCat(){renderAll();commit()}
+$('#addCat').onclick=()=>openCat(null);
+function openCat(k){editCat=k;const c=k===null?{name:'',icon:'🍽️'}:D.categories[k];$('#cName').value=c.name;$('#cIcon').value=c.icon;$('#mCat').classList.add('on')}
+$('#cSave').onclick=()=>{const name=$('#cName').value.trim();if(!name)return toast('أدخل اسم القسم');const icon=$('#cIcon').value.trim()||'🍽️';
+  if(editCat===null)D.categories.push({id:uid('c'),name,icon});else Object.assign(D.categories[editCat],{name,icon});
+  $('#mCat').classList.remove('on');afterCat()};
+
+/* الإعدادات */
+function fillSettings(){
+  const s=D.settings;$('#sName').value=s.name;$('#sTag').value=s.tagline;$('#sLogo').value=s.logo||'';$('#sFb').value=s.facebook||'';$('#sThanks').value=s.thanks;
+  $('#branchBox').innerHTML=s.branches.map((b,k)=>{
+    const f=(label,field,val,extra='')=>`<label class="fld"><span>${label}</span><input data-b="${k}" data-f="${field}" value="${esc(val)}" ${extra}></label>`;
+    return `<div class="sec"><h4>📍 ${esc(b.name||'فرع')} <small style="color:var(--mut);font-weight:500">(المعرّف: ${esc(b.id)})</small></h4>
+      ${f('اسم الفرع','name',b.name)}
+      ${f('العنوان / وصف قصير (اختياري، يظهر عند اختيار الفرع)','address',b.address)}
+      ${f('رقم واتساب هذا الفرع (بصيغة دولية بدون +، مثال: 970599123456)','whatsapp',b.whatsapp,'dir="ltr" inputmode="numeric"')}
+      <label class="chk"><input type="checkbox" data-b="${k}" data-f="open" ${b.open!==false?'checked':''}> هذا الفرع يستقبل الطلبات الآن</label>
+      ${f('بنك فلسطين (رقم الحساب / IBAN)','bop',b.pay.bop,'dir="ltr"')}
+      ${f('بال باي (رقم الجوال)','palpay',b.pay.palpay,'dir="ltr"')}
+      ${f('جوال باي (رقم الجوال)','jawwal',b.pay.jawwal,'dir="ltr"')}
+      ${f('رسالة شكر خاصة بهذا الفرع (اختياري، وإن تُركت فارغة تُستخدم الرسالة العامة)','thanks',b.thanks)}
+    </div>`}).join('');
+}
+$('#saveSet').onclick=()=>{
+  const branches=D.settings.branches.map((b,k)=>{
+    const g=f=>document.querySelector(`[data-b="${k}"][data-f="${f}"]`);
+    return {...b,name:g('name').value.trim()||b.name,address:g('address').value.trim(),whatsapp:g('whatsapp').value.replace(/\D/g,''),open:g('open').checked,thanks:g('thanks').value.trim(),
+      pay:{bop:g('bop').value.trim(),palpay:g('palpay').value.trim(),jawwal:g('jawwal').value.trim()}};
+  });
+  const bad=branches.find(b=>b.whatsapp&&b.whatsapp.length<9);
+  if(bad)return toast(`رقم واتساب "${bad.name}" غير صحيح`);
+  const empty=branches.find(b=>!b.whatsapp);
+  D.settings={...D.settings,name:$('#sName').value.trim()||'المطعم',tagline:$('#sTag').value.trim(),logo:$('#sLogo').value.trim(),facebook:$('#sFb').value.trim(),thanks:$('#sThanks').value.trim(),branches};
+  commit(empty?`تم الحفظ ✅ — تنبيه: "${empty.name}" بدون رقم واتساب`:'تم الحفظ ✅');
+};
+
+/* نسخ احتياطي */
+$('#exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,2)],{type:'application/json'}));a.download='menu-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click()};
+$('#impBtn').onclick=()=>$('#impFile').click();
+$('#impFile').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=MenuStore.normalize(JSON.parse(t));if(!d.categories.length)throw 0;if(confirm('سيتم استبدال المنيو الحالي. متابعة؟')){D=d;renderAll();commit('تم الاستيراد ✅')}}catch(_){toast('ملف غير صالح')}})};
+$('#reset').onclick=()=>{if(confirm('استرجاع المنيو الافتراضي سيحذف كل تعديلاتك. متابعة؟')){D=MenuStore.clone(DEFAULT_MENU);renderAll();commit('تمت إعادة الضبط')}};
+</script>
+</body>
+</html>
